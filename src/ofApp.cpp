@@ -1,12 +1,19 @@
 #include "ofApp.h"
 
 std::string catedral[3] = {"catedral.png","catedral2.png","catedral_frente.png"};
-std::string tiendas[1] = {"tienda_peatonal_chucherias.png"};
+std::string tiendas[3] = {"tienda_peatonal_chucherias.png", "tienda_peatonal_frente_pilchas.png","tienda_peatonal_celulares.png"};
 std::string terminal[1] = {"terminal.png"};
+std::string diver[2] = {"zona_zoo_cba.png","zoo_cba_peces.png"};
+std::string noche[1] = {"faro.png"};
+std::string otrasIglesias[1] = {"auxiliadora.png"};
 
 //--------------------------------------------------------------
 void ofApp::setup(){
     count = 0;
+	//just set up the openFrameworks stuff
+    ofSetFrameRate(60);
+    ofSetVerticalSync(true);
+    exaggerate_depth = false;
     //sphere.setRadius(200);
     //sphere.setResolution(100);
 
@@ -33,6 +40,7 @@ void ofApp::setup(){
 
     //loadMesh("terminal.png",1000 );
     loadMesh("terminal.png",1000);
+    current_image_file = "terminal.png";
     
 }
 
@@ -47,7 +55,7 @@ void ofApp::draw() {
     ofBackground(180, 180, 180);
 
 //Set a gradient background from white to gray
-ofBackgroundGradient( ofColor( 255 ), ofColor( 128 ) );
+ofBackgroundGradient( ofColor( 0 ), ofColor( 1 ) );
 ofPushMatrix();
 //Store the coordinate system
 //Move the coordinate center to screen's center
@@ -108,7 +116,16 @@ void ofApp::loadMesh(std::string path, int radius){
          t.x = ofClamp( t.x, 0, pixels.getWidth()-1 );
          t.y = ofClamp( t.y, 0, pixels.getHeight()-1 );
          float br = pixels.getColor(t.x, t.y).getBrightness();
+         if (exaggerate_depth) {
+             if (br <.5){
+                vertices[i] *= -2.;
+             } else {
+                 vertices[i] *= 1 + br / 255.0  * extrude_factor;
+             }
+         } else {
+
          vertices[i] *= 1 + br / 255.0  * extrude_factor;
+         }
      }
 }
 //--------------------------------------------------------------
@@ -125,8 +142,14 @@ void ofApp::keyPressed(int key){
     } else if (key == OF_KEY_LEFT){
         loadMesh("terminal.png",1000);
     } else if (key == 99) { //c
-        loadMesh(catedral[count],1000);
+
+        current_image_file = catedral[count];
+        loadMesh(current_image_file,1000);
         count = count+1 % (sizeof(catedral)/sizeof(catedral[0]));
+
+    } else if (key == 49) { //1
+        exaggerate_depth = !exaggerate_depth;
+        loadMesh(current_image_file,1000);
     }
     ofLog(OF_LOG_NOTICE, ofToString(key));
 }
