@@ -127,7 +127,6 @@ void ofApp::keyPressed(int key){
     } else if (key == 99) { //c
         loadMesh(catedral[count],1000);
         count = count+1 % (sizeof(catedral)/sizeof(catedral[0]));
-
     }
     ofLog(OF_LOG_NOTICE, ofToString(key));
 }
