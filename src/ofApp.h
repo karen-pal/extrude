@@ -19,4 +19,7 @@ class ofApp : public ofBaseApp{
 	    ofTexture texture;
 	    ofEasyCam cam;
         float extrude_factor;
+        float angle;
+        ofLight light;
+        int count;
 };
