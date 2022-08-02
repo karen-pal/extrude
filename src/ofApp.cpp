@@ -1,11 +1,17 @@
 #include "ofApp.h"
 
-std::string catedral[3] = {"catedral.png","catedral2.png","catedral_frente.png"};
-std::string tiendas[3] = {"tienda_peatonal_chucherias.png", "tienda_peatonal_frente_pilchas.png","tienda_peatonal_celulares.png"};
-std::string terminal[1] = {"terminal.png"};
+std::string catedral[3] = {"catedral.png","catedral2.png","catedral_frente.png"}; //c
+std::string tiendas[8] = {"tienda_peatonal_chucherias.png", "tienda_peatonal_frente_pilchas.png","tienda_peatonal_celulares.png", "bombachas.png", "panaderia.png","gym.png", "verduleria.png", "veterinaria.png"}; //t
+std::string lugares[2] = {"terminal.png", "estacionamiento.png"};
 std::string diver[2] = {"zona_zoo_cba.png","zoo_cba_peces.png"};
-std::string noche[1] = {"faro.png"};
-std::string otrasIglesias[1] = {"auxiliadora.png"};
+std::string noche[2] = {"faro.png", "bizarra.png"}; //n
+std::string otrasIglesias[4] = {"auxiliadora.png", "iglesia.png", "maquina_rara_medica.png","sala_hospital.png"};
+
+int OF_KEY_C = 99;
+int OF_KEY_T = 116;
+int OF_KEY_1 = 49;
+int OF_KEY_2 = 50;
+int OF_KEY_N = 52;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -14,6 +20,7 @@ void ofApp::setup(){
     ofSetFrameRate(60);
     ofSetVerticalSync(true);
     exaggerate_depth = false;
+    exaggerate_bright = false;
     //sphere.setRadius(200);
     //sphere.setResolution(100);
 
@@ -122,8 +129,14 @@ void ofApp::loadMesh(std::string path, int radius){
              } else {
                  vertices[i] *= 1 + br / 255.0  * extrude_factor;
              }
-         } else {
+         } else if (exaggerate_bright) {
+             if (br >.5){
+                vertices[i] *= ofNoise(sin(ofGetFrameNum())*br);
+             } else {
+                 vertices[i] *= 1 + br / 255.0  * extrude_factor;
+             }
 
+        } else {
          vertices[i] *= 1 + br / 255.0  * extrude_factor;
          }
      }
@@ -141,16 +154,26 @@ void ofApp::keyPressed(int key){
         loadMesh("tienda_peatonal_chucherias.png",1000);
     } else if (key == OF_KEY_LEFT){
         loadMesh("terminal.png",1000);
-    } else if (key == 99) { //c
+    } else if (key == OF_KEY_C) { 
 
         current_image_file = catedral[count];
         loadMesh(current_image_file,1000);
-        count = count+1 % (sizeof(catedral)/sizeof(catedral[0]));
+        count = (count+1) % (sizeof(catedral)/sizeof(catedral[0]));
+    } else if (key == OF_KEY_T) { 
 
-    } else if (key == 49) { //1
+        current_image_file = tiendas[count];
+        loadMesh(current_image_file,1000);
+        count = (count+1) % (sizeof(tiendas)/sizeof(tiendas[0]));
+
+
+    } else if (key == OF_KEY_1) { //1
         exaggerate_depth = !exaggerate_depth;
         loadMesh(current_image_file,1000);
+
+    } else if (key == OF_KEY_2) { //1
+        exaggerate_bright = !exaggerate_bright;
+        loadMesh(current_image_file,1000);
     }
-    ofLog(OF_LOG_NOTICE, ofToString(key));
+    ofLog(OF_LOG_NOTICE, ofToString(count) + " " + ofToString(key));
 }
 

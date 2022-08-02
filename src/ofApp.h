@@ -23,5 +23,6 @@ class ofApp : public ofBaseApp{
         ofLight light;
         int count;
         bool exaggerate_depth;
+        bool exaggerate_bright;
         std::string current_image_file;
 };
