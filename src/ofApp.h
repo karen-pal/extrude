@@ -16,6 +16,9 @@ class ofApp : public ofBaseApp{
         void loadMesh(std::string path, int radius);
 
 	    ofSpherePrimitive sphere;
+	    ofSpherePrimitive sphere2;
+
+	    ofMaterial material;
 	    ofTexture texture;
 	    ofEasyCam cam;
         float extrude_factor;
@@ -25,4 +28,7 @@ class ofApp : public ofBaseApp{
         bool exaggerate_depth;
         bool exaggerate_bright;
         std::string current_image_file;
+        bool multi_mode;
+	bool bWireframe;
+        
 };
