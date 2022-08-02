@@ -72,7 +72,7 @@ float time = ofGetElapsedTimef();
         ofEnableDepthTest();
         ofSetColor(ofColor::white);
         sphere.draw();
-        sphere.drawWireframe();
+        sphere2.draw();
         //sphere2.draw();
         //sphere2.drawWireframe();
      
@@ -131,6 +131,8 @@ void ofApp::loadMesh(std::string path, int radius){
 void ofApp::loadMeshes(std::string path, int radius){
     sphere.setRadius(radius);
     sphere.setResolution(100);
+    sphere2.setRadius(radius/2);
+    sphere2.setResolution(100);
     ofLoadImage(texture,path);
     cam.enableMouseInput();
     
@@ -138,8 +140,11 @@ void ofApp::loadMeshes(std::string path, int radius){
     float h = texture.getHeight();
     sphere.mapTexCoords(0, h, w, 0);
     sphere.rotateDeg(angle, 0, 1, 0);
+    sphere2.mapTexCoords(0, h, w, 0);
+    sphere2.rotateDeg(angle, 0, 1, 0);
     
      vector<glm::vec<3, float, glm::packed_highp>>& vertices = sphere.getMesh().getVertices();
+     vector<glm::vec<3, float, glm::packed_highp>>& vertices2 = sphere2.getMesh().getVertices();
      extrude_factor = 1.; 
      ofPixels pixels;
      texture.readToPixels(pixels);
@@ -164,6 +169,13 @@ void ofApp::loadMeshes(std::string path, int radius){
         } else {
          vertices[i] *= 1 + br / 255.0  * extrude_factor;
          }
+     }
+     for (int i=0; i<vertices2.size(); i++) {
+         ofVec2f t = sphere2.getMesh().getTexCoords()[i];
+         t.x = ofClamp( t.x, 0, pixels.getWidth()-1 );
+         t.y = ofClamp( t.y, 0, pixels.getHeight()-1 );
+         float br = pixels.getColor(t.x, t.y).getBrightness();
+         vertices2[i] *= 20 + br / 255.0  * extrude_factor;
      }
 }
 //--------------------------------------------------------------
@@ -238,7 +250,7 @@ void ofApp::keyPressed(int key){
 
         //// now draw
         //sphere2.draw();
-        loadMesh2(sphere2, lugares[0], 100);
+        loadMeshes(diver[0], 1000);
         
 
     //efectos

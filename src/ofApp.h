@@ -14,6 +14,7 @@ class ofApp : public ofBaseApp{
 		void keyPressed(int key);
         void draw3d();
         void loadMesh(std::string path, int radius);
+        void loadMeshes(std::string path, int radius);
 
 	    ofSpherePrimitive sphere;
 	    ofSpherePrimitive sphere2;
