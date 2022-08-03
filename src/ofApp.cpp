@@ -18,6 +18,8 @@ int OF_KEY_D = 100;
 int OF_KEY_M = 109;
 int OF_KEY_1 = 49;
 int OF_KEY_2 = 50;
+int OF_KEY_3 = 51;
+int OF_KEY_4 = 52;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -70,8 +72,10 @@ float time = ofGetElapsedTimef();
         //light.enable();
         //material.begin();
         ofEnableDepthTest();
+        ofPushStyle();
         ofSetColor(ofColor::white);
         sphere.draw();
+        ofSetColor(ofColor::white);
         sphere2.draw();
         //sphere2.draw();
         //sphere2.drawWireframe();
@@ -82,6 +86,7 @@ float time = ofGetElapsedTimef();
         //ofDisableLighting();
         texture.unbind();
         //draw3d();
+        ofPopStyle();
         ofPopMatrix();
         //Restore the coordinate system
     cam.end();
@@ -97,7 +102,8 @@ void ofApp::loadMesh(std::string path, int radius){
     float w = texture.getWidth();
     float h = texture.getHeight();
     sphere.mapTexCoords(0, h, w, 0);
-    sphere.rotateDeg(angle, 0, 1, 0);
+    
+    sphere.rotateDeg(180, 0, 0, 1);
     
      vector<glm::vec<3, float, glm::packed_highp>>& vertices = sphere.getMesh().getVertices();
      extrude_factor = 1.; 
@@ -250,7 +256,7 @@ void ofApp::keyPressed(int key){
 
         //// now draw
         //sphere2.draw();
-        loadMeshes(diver[0], 1000);
+        loadMeshes(current_image_file, 1000);
         
 
     //efectos
@@ -261,6 +267,13 @@ void ofApp::keyPressed(int key){
     } else if (key == OF_KEY_2) { //1
         exaggerate_bright = !exaggerate_bright;
         loadMesh(current_image_file,1000);
+    } else if(key==OF_KEY_3){
+        angle = angle+.01;
+        if (mouseX < ofGetScreenWidth()/2){
+            sphere.rotateDeg(angle, 0, 0, 1);
+        } else {
+            sphere.rotateDeg(angle, 1, 0, 0);
+    }
     }
     ofLog(OF_LOG_NOTICE, ofToString(count) + " " + ofToString(key));
 }
