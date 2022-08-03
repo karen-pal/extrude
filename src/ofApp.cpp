@@ -16,12 +16,13 @@ int OF_KEY_I = 105;
 int OF_KEY_L = 108;
 int OF_KEY_D = 100;
 int OF_KEY_M = 109;
+int OF_KEY_R = 114;
 int OF_KEY_1 = 49;
 int OF_KEY_2 = 50;
 int OF_KEY_3 = 51;
 int OF_KEY_4 = 52;
 
-//--------------------------------------------------------------
+//-------------------------------------------------------------
 void ofApp::setup(){
     count = 0;
 	//just set up the openFrameworks stuff
@@ -30,9 +31,11 @@ void ofApp::setup(){
     exaggerate_depth = false;
     exaggerate_bright = false;
     //loadMesh2(sphere,"terminal.png",1000);
-    loadMesh("terminal.png",1000);
+    loadMeshes("terminal.png",1000);
     current_image_file = "terminal.png";
-    multi_mode = false;
+    multi_mode = true;
+    exaggerate_depth_factor =0.;
+    exaggerate_bright_factor =0.;
     
 }
 
@@ -55,7 +58,7 @@ ofTranslate( ofGetWidth()/2, ofGetHeight()/2, 0 );
 //Calculate the rotation angle
 float time = ofGetElapsedTimef();
 //Get time in seconds
- angle = time;
+ angle = 0.;
 //Compute angle. We rotate at speed
 //20 degrees per second
 //ofRotate( 30, 1, 0, 0 );
@@ -75,10 +78,15 @@ float time = ofGetElapsedTimef();
         ofPushStyle();
         ofSetColor(ofColor::white);
         sphere.draw();
-        ofSetColor(ofColor::white);
         sphere2.draw();
+        ofSetColor(ofColor::black);
+		ofNoFill();
+		ofSetColor(0, 0, 0);
+        ofPopStyle();
         //sphere2.draw();
         //sphere2.drawWireframe();
+        sphere.rotateDeg(angle, 0, 1, 0);
+        sphere2.rotateDeg(angle, 0, 1, 0);
      
         ofDisableDepthTest();
         //material.end();
@@ -86,7 +94,6 @@ float time = ofGetElapsedTimef();
         //ofDisableLighting();
         texture.unbind();
         //draw3d();
-        ofPopStyle();
         ofPopMatrix();
         //Restore the coordinate system
     cam.end();
@@ -116,20 +123,20 @@ void ofApp::loadMesh(std::string path, int radius){
          float br = pixels.getColor(t.x, t.y).getBrightness();
          if (exaggerate_depth) {
              if (br <.5){
-                vertices[i] *= -2.;
+                vertices[i] *= exaggerate_depth_factor;
              } else {
                  vertices[i] *= 1 + br / 255.0  * extrude_factor;
              }
          } else if (exaggerate_bright) {
              if (br >.5){
-                vertices[i] *= ofNoise(sin(ofGetFrameNum())*br);
+                vertices[i] *= ofNoise(sin(ofGetFrameNum())*exaggerate_bright_factor);
              } else {
                  vertices[i] *= 1 + br / 255.0  * extrude_factor;
              }
 
         } else {
          vertices[i] *= 1 + br / 255.0  * extrude_factor;
-         }
+        }
      }
 }
 //--------------------------------------------------------------
@@ -137,7 +144,7 @@ void ofApp::loadMesh(std::string path, int radius){
 void ofApp::loadMeshes(std::string path, int radius){
     sphere.setRadius(radius);
     sphere.setResolution(100);
-    sphere2.setRadius(radius/2);
+    sphere2.setRadius(radius/2.5);
     sphere2.setResolution(100);
     ofLoadImage(texture,path);
     cam.enableMouseInput();
@@ -145,9 +152,7 @@ void ofApp::loadMeshes(std::string path, int radius){
     float w = texture.getWidth();
     float h = texture.getHeight();
     sphere.mapTexCoords(0, h, w, 0);
-    sphere.rotateDeg(angle, 0, 1, 0);
     sphere2.mapTexCoords(0, h, w, 0);
-    sphere2.rotateDeg(angle, 0, 1, 0);
     
      vector<glm::vec<3, float, glm::packed_highp>>& vertices = sphere.getMesh().getVertices();
      vector<glm::vec<3, float, glm::packed_highp>>& vertices2 = sphere2.getMesh().getVertices();
@@ -160,14 +165,14 @@ void ofApp::loadMeshes(std::string path, int radius){
          t.y = ofClamp( t.y, 0, pixels.getHeight()-1 );
          float br = pixels.getColor(t.x, t.y).getBrightness();
          if (exaggerate_depth) {
-             if (br <.5){
-                vertices[i] *= -2.;
+             if (true){
+                vertices[i] *= exaggerate_depth_factor;
              } else {
                  vertices[i] *= 1 + br / 255.0  * extrude_factor;
              }
          } else if (exaggerate_bright) {
-             if (br >.5){
-                vertices[i] *= ofNoise(sin(ofGetFrameNum())*br);
+             if (true){
+                vertices[i] *= ofNoise(sin(ofGetFrameNum())*exaggerate_bright_factor);
              } else {
                  vertices[i] *= 1 + br / 255.0  * extrude_factor;
              }
@@ -181,7 +186,7 @@ void ofApp::loadMeshes(std::string path, int radius){
          t.x = ofClamp( t.x, 0, pixels.getWidth()-1 );
          t.y = ofClamp( t.y, 0, pixels.getHeight()-1 );
          float br = pixels.getColor(t.x, t.y).getBrightness();
-         vertices2[i] *= 20 + br / 255.0  * extrude_factor;
+         vertices2[i] *= 1. + br / 255.0  * extrude_factor;
      }
 }
 //--------------------------------------------------------------
@@ -202,36 +207,36 @@ void ofApp::keyPressed(int key){
     } else if (key == OF_KEY_C) { 
         current_image_category = catedral;
         current_image_file = catedral[count];
-        loadMesh(current_image_file,1000);
+        loadMeshes(current_image_file,1000);
         count = (count+1) % (sizeof(catedral)/sizeof(catedral[0]));
     } else if (key == OF_KEY_T) { 
 
         current_image_category=tiendas;
         current_image_file = tiendas[count];
-        loadMesh(current_image_file,1000);
+        loadMeshes(current_image_file,1000);
         count = (count+1) % (sizeof(tiendas)/sizeof(tiendas[0]));
 
     } else if (key == OF_KEY_N) { 
         current_image_category=noche;
         current_image_file = noche[count];
-        loadMesh(current_image_file,1000);
+        loadMeshes(current_image_file,1000);
         count = (count+1) % (sizeof(noche)/sizeof(noche[0]));
 
     } else if (key == OF_KEY_L) { 
         current_image_category=lugares;
         current_image_file = lugares[count];
-        loadMesh(current_image_file,1000);
+        loadMeshes(current_image_file,1000);
         count = (count+1) % (sizeof(lugares)/sizeof(lugares[0]));
 
     } else if (key == OF_KEY_D) { 
         current_image_category = diver;
         current_image_file = diver[count];
-        loadMesh(current_image_file,1000);
+        loadMeshes(current_image_file,1000);
         count = (count+1) % (sizeof(diver)/sizeof(diver[0]));
     } else if (key == OF_KEY_I) { 
         current_image_category = otrasIglesias;
         current_image_file = otrasIglesias[count];
-        loadMesh(current_image_file,1000);
+        loadMeshes(current_image_file,1000);
         count = (count+1) % (sizeof(otrasIglesias)/sizeof(otrasIglesias[0]));
 
     } else if (key == OF_KEY_M) { 
@@ -258,22 +263,35 @@ void ofApp::keyPressed(int key){
         //sphere2.draw();
         loadMeshes(current_image_file, 1000);
         
-
+    } else if (key == OF_KEY_R) { 
+        ofApp::setup();
     //efectos
     } else if (key == OF_KEY_1) { //1
         exaggerate_depth = !exaggerate_depth;
-        loadMesh(current_image_file,1000);
+        exaggerate_depth_factor -= .001;
+        if (exaggerate_depth_factor >= -.003){
+            exaggerate_depth_factor = 0.;
+        }
+        loadMeshes(current_image_file,1000);
+        ofLog(OF_LOG_NOTICE, ofToString(exaggerate_depth_factor) + " " + ofToString(key));
 
     } else if (key == OF_KEY_2) { //1
         exaggerate_bright = !exaggerate_bright;
-        loadMesh(current_image_file,1000);
+        exaggerate_bright_factor += .001;
+        loadMeshes(current_image_file,1000);
+        ofLog(OF_LOG_NOTICE, ofToString(exaggerate_bright_factor) + " " + ofToString(key));
     } else if(key==OF_KEY_3){
-        angle = angle+.01;
+        angle = angle+.001;
         if (mouseX < ofGetScreenWidth()/2){
             sphere.rotateDeg(angle, 0, 0, 1);
+        } else if (mouseX == ofGetScreenWidth()/2) {
+            sphere.rotateDeg(angle, 1, 0, 1);
         } else {
             sphere.rotateDeg(angle, 1, 0, 0);
-    }
+        }
+    } else if(key==OF_KEY_4){ //perfect sphere?
+        exaggerate_depth_factor = -.005;
+        loadMeshes(current_image_file,1000);
     }
     ofLog(OF_LOG_NOTICE, ofToString(count) + " " + ofToString(key));
 }

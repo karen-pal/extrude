@@ -27,7 +27,9 @@ class ofApp : public ofBaseApp{
         ofLight light;
         int count;
         bool exaggerate_depth;
+        float exaggerate_depth_factor;
         bool exaggerate_bright;
+        float exaggerate_bright_factor;
         std::string current_image_file;
         bool multi_mode;
 	bool bWireframe;
