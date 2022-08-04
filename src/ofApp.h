@@ -32,5 +32,8 @@ class ofApp : public ofBaseApp{
         std::string current_image_file = "terminal";
         bool multi_mode;
         bool transp;
+        float radius_mod;
+        bool fast_spin;
+        bool ultra_fast_spin;
         
 };

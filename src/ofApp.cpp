@@ -4,7 +4,7 @@ std::string catedral[7] = {"catedral","catedral2","catedral_frente", "campanario
 std::string tiendas[6] = {"tienda_peatonal_chucherias", "tienda_peatonal_frente_pilchas","tienda_peatonal_celulares", "verduleria","bombachas", "ferreteria"}; //t
 std::string lugares[8] = {"terminal", "estacionamiento", "panaderia","gym","veterinaria" ,"faro", "fabrica", "pintura_auto"}; //l
 std::string diver[1] = {"zona_zoo_cba"}; //d panoramicas
-std::string bizarra[5] = {"maquina_rara_medica","sala_hospital", "bizarra","zoo_cba_peces", "roquero"}; //n
+std::string bizarra[5] = {"maquina_rara_medica","sala_hospital", "bizarra","zoo_cba_peces", "rockero"}; //n
 //std::string otrasIglesias[4] = {"auxiliadora", "iglesia"}; //i
 std::string facu[4] = {"estudiantes_comunicacion", "arquitectura", "teatrino", "psico"}; //i
 
@@ -25,6 +25,9 @@ int OF_KEY_1 = 49;
 int OF_KEY_2 = 50;
 int OF_KEY_3 = 51;
 int OF_KEY_4 = 52;
+int OF_KEY_MINUS_NUMPAD = 45;
+int OF_KEY_PLUS_NUMPAD = 43;
+int OF_KEY_STAR_NUMPAD = 42;
 
 //-------------------------------------------------------------
 void ofApp::setup(){
@@ -39,8 +42,10 @@ void ofApp::setup(){
     exaggerate_depth_factor =0.;
     exaggerate_bright_factor =0.;
     transp = false;
+    radius_mod = 0.;
+    fast_spin = false;
+    ultra_fast_spin = false;
     loadMeshes(current_image_file,1000);
-    ofLog(OF_LOG_NOTICE, current_image_file );
     
 }
 
@@ -112,10 +117,10 @@ void ofApp::loadMeshes(std::string path, int radius){
         path = path + ".png";
     }
 
-    ofLog(OF_LOG_NOTICE, path);
+    ofLog(OF_LOG_NOTICE, ">>>>>>"+path);
     sphere.setRadius(radius);
     sphere.setResolution(100);
-    sphere2.setRadius(radius/2.5);
+    sphere2.setRadius(radius/1.5);
     sphere2.setResolution(100);
     ofLoadImage(texture,path);
     cam.enableMouseInput();
@@ -136,18 +141,9 @@ void ofApp::loadMeshes(std::string path, int radius){
          t.y = ofClamp( t.y, 0, pixels.getHeight()-1 );
          float br = pixels.getColor(t.x, t.y).getBrightness();
          if (exaggerate_depth) {
-             if (true){
-                vertices[i] *= exaggerate_depth_factor;
-             } else {
-                 vertices[i] *= 1 + br / 255.0  * extrude_factor;
-             }
+            vertices[i] *= exaggerate_depth_factor;
          } else if (exaggerate_bright) {
-             if (true){
-                vertices[i] *= ofNoise(sin(ofGetFrameNum())*exaggerate_bright_factor);
-             } else {
-                 vertices[i] *= 1 + br / 255.0  * extrude_factor;
-             }
-
+            vertices[i] *= ofNoise(sin(ofGetFrameNum())*exaggerate_bright_factor);
         } else {
              vertices[i] *= 1 + br / 255.0  * extrude_factor;
         }
@@ -232,17 +228,31 @@ void ofApp::keyPressed(int key){
         loadMeshes(current_image_file,1000);
         ofLog(OF_LOG_NOTICE, ofToString(exaggerate_bright_factor) + " " + ofToString(key));
     } else if(key==OF_KEY_3){
-        angle = angle+.1;
-        if (mouseX < ofGetScreenWidth()/2){
+        float speed_modifier = .3;
+        if (fast_spin) {
+            speed_modifier = ofRandom(1.,10.);
+        }
+        if (ultra_fast_spin) {
+            speed_modifier = ofRandom(50.,100.);
+        }
+        angle = angle+speed_modifier;
+        
+        if (mouseX < ofGetScreenWidth()/3){
             sphere2.rotateDeg(angle, 0, 0, 1);
-        } else if (mouseX == ofGetScreenWidth()/2) {
-            sphere2.rotateDeg(angle, 1, 0, 1);
+        } else if (mouseX < ofGetScreenWidth()*2/3) {
+            sphere2.rotateDeg(angle, 0, 1, 0);
         } else {
             sphere2.rotateDeg(angle, 1, 0, 0);
         }
     } else if(key==OF_KEY_4){ //perfect sphere?
         exaggerate_depth_factor = -.005;
         loadMeshes(current_image_file,1000);
+    } else if (key == OF_KEY_MINUS_NUMPAD){
+        transp= !transp;
+    } else if (key == OF_KEY_PLUS_NUMPAD){
+        fast_spin = !fast_spin;
+    } else if (key == OF_KEY_STAR_NUMPAD){
+        ultra_fast_spin = !ultra_fast_spin;
     }
     ofLog(OF_LOG_NOTICE, ofToString(count) + " " + ofToString(key));
 }
