@@ -1,18 +1,22 @@
 #include "ofApp.h"
 
-std::string catedral[3] = {"catedral.png","catedral2.png","catedral_frente.png"}; //c
-std::string tiendas[8] = {"tienda_peatonal_chucherias.png", "tienda_peatonal_frente_pilchas.png","tienda_peatonal_celulares.png", "bombachas.png", "panaderia.png","gym.png", "verduleria.png", "veterinaria.png"}; //t
-std::string lugares[3] = {"terminal2.png","terminal.png", "estacionamiento.png"}; //l
-std::string diver[2] = {"zona_zoo_cba.png","zoo_cba_peces.png"}; //d
-std::string noche[2] = {"faro.png", "bizarra.png"}; //n
-std::string otrasIglesias[5] = {"iglesia2.png","auxiliadora.png", "iglesia.png", "maquina_rara_medica.png","sala_hospital.png"}; //i
+std::string catedral[7] = {"catedral","catedral2","catedral_frente", "campanario", "catedral_noche", "catedral_noche_luces", "catedral_frente_personas"}; //c
+std::string tiendas[6] = {"tienda_peatonal_chucherias", "tienda_peatonal_frente_pilchas","tienda_peatonal_celulares", "verduleria","bombachas", "ferreteria"}; //t
+std::string lugares[8] = {"terminal", "estacionamiento", "panaderia","gym","veterinaria" ,"faro", "fabrica", "pintura_auto"}; //l
+std::string diver[1] = {"zona_zoo_cba"}; //d panoramicas
+std::string bizarra[5] = {"maquina_rara_medica","sala_hospital", "bizarra","zoo_cba_peces", "roquero"}; //n
+//std::string otrasIglesias[4] = {"auxiliadora", "iglesia"}; //i
+std::string facu[4] = {"estudiantes_comunicacion", "arquitectura", "teatrino", "psico"}; //i
+
 std::string * current_image_category = lugares;
 std::string * second_current_category = lugares;
 
 int OF_KEY_C = 99;
 int OF_KEY_T = 116;
 int OF_KEY_N = 110;
+int OF_KEY_B = 98;
 int OF_KEY_I = 105;
+int OF_KEY_F = 102;
 int OF_KEY_L = 108;
 int OF_KEY_D = 100;
 int OF_KEY_M = 109;
@@ -28,14 +32,15 @@ void ofApp::setup(){
 	//just set up the openFrameworks stuff
     ofSetFrameRate(60);
     ofSetVerticalSync(true);
-    exaggerate_depth = false;
-    exaggerate_bright = false;
+    exaggerate_depth = true;
+    exaggerate_bright = true;
     //loadMesh2(sphere,"terminal.png",1000);
-    loadMeshes("terminal.png",1000);
-    current_image_file = "terminal.png";
     multi_mode = true;
     exaggerate_depth_factor =0.;
     exaggerate_bright_factor =0.;
+    transp = false;
+    loadMeshes(current_image_file,1000);
+    ofLog(OF_LOG_NOTICE, current_image_file );
     
 }
 
@@ -100,48 +105,14 @@ float time = ofGetElapsedTimef();
 }
 
 //--------------------------------------------------------------
-void ofApp::loadMesh(std::string path, int radius){
-    sphere.setRadius(radius);
-    sphere.setResolution(100);
-    ofLoadImage(texture,path);
-    cam.enableMouseInput();
-    
-    float w = texture.getWidth();
-    float h = texture.getHeight();
-    sphere.mapTexCoords(0, h, w, 0);
-    
-    sphere.rotateDeg(180, 0, 0, 1);
-    
-     vector<glm::vec<3, float, glm::packed_highp>>& vertices = sphere.getMesh().getVertices();
-     extrude_factor = 1.; 
-     ofPixels pixels;
-     texture.readToPixels(pixels);
-     for (int i=0; i<vertices.size(); i++) {
-         ofVec2f t = sphere.getMesh().getTexCoords()[i];
-         t.x = ofClamp( t.x, 0, pixels.getWidth()-1 );
-         t.y = ofClamp( t.y, 0, pixels.getHeight()-1 );
-         float br = pixels.getColor(t.x, t.y).getBrightness();
-         if (exaggerate_depth) {
-             if (br <.5){
-                vertices[i] *= exaggerate_depth_factor;
-             } else {
-                 vertices[i] *= 1 + br / 255.0  * extrude_factor;
-             }
-         } else if (exaggerate_bright) {
-             if (br >.5){
-                vertices[i] *= ofNoise(sin(ofGetFrameNum())*exaggerate_bright_factor);
-             } else {
-                 vertices[i] *= 1 + br / 255.0  * extrude_factor;
-             }
-
-        } else {
-         vertices[i] *= 1 + br / 255.0  * extrude_factor;
-        }
-     }
-}
-//--------------------------------------------------------------
-//--------------------------------------------------------------
 void ofApp::loadMeshes(std::string path, int radius){
+    if (transp) {
+        path = path + "_transp.png";
+    } else {
+        path = path + ".png";
+    }
+
+    ofLog(OF_LOG_NOTICE, path);
     sphere.setRadius(radius);
     sphere.setResolution(100);
     sphere2.setRadius(radius/2.5);
@@ -178,8 +149,8 @@ void ofApp::loadMeshes(std::string path, int radius){
              }
 
         } else {
-         vertices[i] *= 1 + br / 255.0  * extrude_factor;
-         }
+             vertices[i] *= 1 + br / 255.0  * extrude_factor;
+        }
      }
      for (int i=0; i<vertices2.size(); i++) {
          ofVec2f t = sphere2.getMesh().getTexCoords()[i];
@@ -187,7 +158,7 @@ void ofApp::loadMeshes(std::string path, int radius){
          t.y = ofClamp( t.y, 0, pixels.getHeight()-1 );
          float br = pixels.getColor(t.x, t.y).getBrightness();
          vertices2[i] *= 1. + br / 255.0  * extrude_factor;
-     }
+    }
 }
 //--------------------------------------------------------------
 
@@ -216,11 +187,11 @@ void ofApp::keyPressed(int key){
         loadMeshes(current_image_file,1000);
         count = (count+1) % (sizeof(tiendas)/sizeof(tiendas[0]));
 
-    } else if (key == OF_KEY_N) { 
-        current_image_category=noche;
-        current_image_file = noche[count];
+    } else if (key == OF_KEY_B) { 
+        current_image_category=bizarra;
+        current_image_file = bizarra[count];
         loadMeshes(current_image_file,1000);
-        count = (count+1) % (sizeof(noche)/sizeof(noche[0]));
+        count = (count+1) % (sizeof(bizarra)/sizeof(bizarra[0]));
 
     } else if (key == OF_KEY_L) { 
         current_image_category=lugares;
@@ -233,34 +204,14 @@ void ofApp::keyPressed(int key){
         current_image_file = diver[count];
         loadMeshes(current_image_file,1000);
         count = (count+1) % (sizeof(diver)/sizeof(diver[0]));
-    } else if (key == OF_KEY_I) { 
-        current_image_category = otrasIglesias;
-        current_image_file = otrasIglesias[count];
+    } else if (key == OF_KEY_F) { 
+        current_image_category = facu;
+        current_image_file = facu[count];
         loadMeshes(current_image_file,1000);
-        count = (count+1) % (sizeof(otrasIglesias)/sizeof(otrasIglesias[0]));
+        count = (count+1) % (sizeof(facu)/sizeof(facu[0]));
 
     } else if (key == OF_KEY_M) { 
         multi_mode = true;
-
-        //float spinX = sin(ofGetElapsedTimef()*.35f);
-        //float spinY = cos(ofGetElapsedTimef()*.075f);
-        //sphere2.setPosition(ofGetWidth()*.2, ofGetHeight()*.75, 0);
-        //sphere2.rotate(spinX, 1.0, 0.0, 0.0);
-        //sphere2.rotate(spinY, 0, 1.0, 0.0);
-
-        //material.begin();
-        //ofNoFill();
-        //ofDrawSphere(0, 0, max(ofGetWidth(),ofGetHeight()));
-        //float screenWidth = ofGetWidth();
-        //float screenHeight = ofGetHeight();
-	    //sphere2.setPosition(	-screenWidth * .5 + screenWidth *  3/4.f, screenHeight *  1.1/6.f, 0);
-        //material.end();
-        //// get all the faces from the icoSphere, handy when you want to copy
-        //// individual vertices or tweak them a little ;)
-        //vector<ofMeshFace> triangles = sphere2.getMesh().getUniqueFaces();
-
-        //// now draw
-        //sphere2.draw();
         loadMeshes(current_image_file, 1000);
         
     } else if (key == OF_KEY_R) { 
@@ -281,13 +232,13 @@ void ofApp::keyPressed(int key){
         loadMeshes(current_image_file,1000);
         ofLog(OF_LOG_NOTICE, ofToString(exaggerate_bright_factor) + " " + ofToString(key));
     } else if(key==OF_KEY_3){
-        angle = angle+.001;
+        angle = angle+.1;
         if (mouseX < ofGetScreenWidth()/2){
-            sphere.rotateDeg(angle, 0, 0, 1);
+            sphere2.rotateDeg(angle, 0, 0, 1);
         } else if (mouseX == ofGetScreenWidth()/2) {
-            sphere.rotateDeg(angle, 1, 0, 1);
+            sphere2.rotateDeg(angle, 1, 0, 1);
         } else {
-            sphere.rotateDeg(angle, 1, 0, 0);
+            sphere2.rotateDeg(angle, 1, 0, 0);
         }
     } else if(key==OF_KEY_4){ //perfect sphere?
         exaggerate_depth_factor = -.005;

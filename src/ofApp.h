@@ -13,7 +13,6 @@ class ofApp : public ofBaseApp{
 		
 		void keyPressed(int key);
         void draw3d();
-        void loadMesh(std::string path, int radius);
         void loadMeshes(std::string path, int radius);
 
 	    ofSpherePrimitive sphere;
@@ -30,8 +29,8 @@ class ofApp : public ofBaseApp{
         float exaggerate_depth_factor;
         bool exaggerate_bright;
         float exaggerate_bright_factor;
-        std::string current_image_file;
+        std::string current_image_file = "terminal";
         bool multi_mode;
-	bool bWireframe;
+        bool transp;
         
 };
